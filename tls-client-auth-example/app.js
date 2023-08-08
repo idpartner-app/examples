@@ -7,8 +7,9 @@ const querystring = require('querystring');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 
-const clientId = "Xgjrh5jZum-Ptjb84Priv";
-const redirectUri = "https://idpartner-rp2.ngrok.io/button/oauth/callback";
+const clientId = 'Xgjrh5jZum-Ptjb84Priv';
+const redirectUri = 'http://localhost:3001/button/oauth/callback';
+const scope = 'openid offline_access email profile birthdate address';
 
 const state = crypto.randomBytes(16).toString('hex');
 const nonce = crypto.randomBytes(16).toString('hex');
@@ -22,22 +23,29 @@ const clientKey = fs.readFileSync('./Xgjrh5jZum-Ptjb84Priv.key');
 const app = express();
 
 app.get('/button/oauth', async (req, res) => {
-  const queryParams = querystring.stringify({
-    redirect_uri: redirectUri,
-    code_challenge_method: "S256",
-    code_challenge: challenge,
-    state,
-    nonce,
-    scope: "openid offline_access email profile birthdate address",
-    client_id: clientId,
-    identity_provider_id: 1, // mikomo
-    prompt: 'consent',
-    response_type: "code",
-    response_mode: "jwt",
-  });
+  const { iss, idp_id: idpId } = req.query;
+  if (iss) {
+    // Construct query parameters for the authorization request
+    const queryParams = querystring.stringify({
+      redirect_uri: redirectUri,
+      code_challenge_method: "S256",
+      code_challenge: challenge,
+      state,
+      nonce,
+      scope,
+      client_id: clientId,
+      identity_provider_id: idpId,
+      prompt: 'consent',
+      response_type: "code",
+      response_mode: "jwt",
+    });
 
-  const authUrl = `https://auth.idpartner.com/oidc/auth?${queryParams}`;
-  res.redirect(authUrl);
+    // Redirect the user to the authorization URL
+    return res.redirect(`${iss}/auth?${queryParams}`);
+  } else {
+    // bank selection
+    return res.redirect(`https://auth-api.idpartner.com/oidc-proxy/auth/select-accounts?client_id=${clientId}&scope=${scope}`)
+  }
 });
 
 app.get('/button/oauth/callback', async (req, res) => {
@@ -60,16 +68,14 @@ app.get('/button/oauth/callback', async (req, res) => {
       key: clientKey,
       rejectUnauthorized: true,
     }),
-  })
-    .then((response) => {
-      const tokenData = response.data;
-      console.log('Token response:', tokenData);
-      return res.status(200).json(tokenData);
-    })
-    .catch((error) => {
-      console.error(error);
-      return res.status(500).json(`Token exchange request failed: ${error}`);
-    });
+  }).then(response => {
+    const tokenData = response.data;
+    console.log('Token response:', tokenData);
+    return res.status(200).json(tokenData);
+  }).catch(error => {
+    console.error(error);
+    return res.status(500).json(`Token exchange request failed: ${error}`);
+  });
 });
 
 app.listen(3001, () => console.log('Server started on port 3001'));
