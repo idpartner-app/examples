@@ -1,5 +1,5 @@
 {
-  "name": "tls-client-auth-example",
+  "name": "mutual-tls-example",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
