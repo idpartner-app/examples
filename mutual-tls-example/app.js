@@ -37,7 +37,7 @@ app.get('/button/oauth', async (req, res) => {
       identity_provider_id: idpId,
       prompt: 'consent',
       response_type: "code",
-      response_mode: "jwt",
+      // response_mode: "jwt",
     });
 
     // Redirect the user to the authorization URL
