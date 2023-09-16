@@ -6,6 +6,8 @@ const base64 = require('urlsafe-base64');
 const querystring = require('querystring');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
+const JOSEWrapper = require('@idpartner/jose-wrapper');
+const cookieParser = require('cookie-parser');
 
 const clientId = 'Xgjrh5jZum-Ptjb84Priv';
 const redirectUri = 'http://localhost:3001/button/oauth/callback';
@@ -17,15 +19,17 @@ const verifier = base64.encode(crypto.randomBytes(32));
 const challenge = base64.encode(crypto.createHash('sha256').update(verifier).digest());
 
 // Load client certificates
-const clientCert = fs.readFileSync('./Xgjrh5jZum-Ptjb84Priv_1691434244328.pem');
+const clientCert = fs.readFileSync('./Xgjrh5jZum-Ptjb84Priv.pem');
 const clientKey = fs.readFileSync('./Xgjrh5jZum-Ptjb84Priv.key');
 
 const app = express();
+app.use(cookieParser());
 
 app.get('/button/oauth', async (req, res) => {
   const { iss, idp_id: idpId } = req.query;
   if (iss) {
-    // Construct query parameters for the authorization request
+    res.cookie('iss', iss, { maxAge: 900000, httpOnly: true });  // maxAge set to 15 mins here as an example
+    // Build query parameters for the authorization request
     const queryParams = querystring.stringify({
       redirect_uri: redirectUri,
       code_challenge_method: "S256",
@@ -37,7 +41,7 @@ app.get('/button/oauth', async (req, res) => {
       identity_provider_id: idpId,
       prompt: 'consent',
       response_type: "code",
-      // response_mode: "jwt",
+      response_mode: "jwt",
     });
 
     // Redirect the user to the authorization URL
@@ -49,12 +53,14 @@ app.get('/button/oauth', async (req, res) => {
 });
 
 app.get('/button/oauth/callback', async (req, res) => {
+  const issFromCookie = req.cookies.iss;
   const { response } = req.query;
-  const decoded = jwt.decode(response);
+  const decodedToken = await JOSEWrapper.verifyJWS({ jws: response, issuerURL: issFromCookie });
+  const code = decodedToken.code;
 
   const payload = {
     grant_type: 'authorization_code',
-    code: decoded.code,
+    code,
     redirect_uri: redirectUri,
     code_verifier: verifier,
     client_id: clientId,

@@ -25,7 +25,7 @@ app.get('/button/oauth', async (req, res) => {
   const { iss, idp_id: idpId } = req.query;
   if (iss) {
     res.cookie('iss', iss, { maxAge: 900000, httpOnly: true });  // maxAge set to 15 mins here as an example
-    // Construct query parameters for the authorization request
+    // Build query parameters for the authorization request
     const queryParams = querystring.stringify({
       redirect_uri: redirectUri,
       code_challenge_method: "S256",
@@ -45,7 +45,7 @@ app.get('/button/oauth', async (req, res) => {
     return res.redirect(`${iss}/auth?${queryParams}`);
   } else {
     // bank selection
-    return res.redirect(`https://auth-api.idpartner-dev.com/oidc-proxy/auth/select-accounts?client_id=${clientId}&scope=${scope}`)
+    return res.redirect(`https://auth-api.idpartner.com/oidc-proxy/auth/select-accounts?client_id=${clientId}&scope=${scope}`)
   }
 });
 
