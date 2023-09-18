@@ -3,6 +3,8 @@ const crypto = require('crypto');
 const base64 = require('urlsafe-base64');
 const querystring = require('querystring');
 const axios = require('axios');
+const JOSEWrapper = require('@idpartner/jose-wrapper');
+const cookieParser = require('cookie-parser');
 
 const clientId = 'ed3f0ba224eb7c92e3b4629bf87b44bb';
 const clientSecret = 'ed3f0ba224eb7c92e3b4629bf87b44bbed3f0ba224eb7c92e3b4629bf87b44bbed3f0ba224eb7c92e3b4629bf87b44bb';
@@ -16,12 +18,14 @@ const verifier = base64.encode(crypto.randomBytes(32));
 const challenge = base64.encode(crypto.createHash('sha256').update(verifier).digest());
 
 const app = express();
+app.use(cookieParser());
 
 // Endpoint to initiate the OAuth process
 app.get('/button/oauth', async (req, res) => {
   const { iss, idp_id: idpId } = req.query;
   if (iss) {
-    // Construct query parameters for the authorization request
+    res.cookie('iss', iss, { maxAge: 900000, httpOnly: true });
+    // Build query parameters for the authorization request
     const queryParams = querystring.stringify({
       redirect_uri: redirectUri,
       code_challenge_method: "S256",
@@ -30,10 +34,10 @@ app.get('/button/oauth', async (req, res) => {
       nonce,
       scope,
       client_id: clientId,
-      client_secret: clientSecret,
       identity_provider_id: idpId,
       prompt: 'consent',
       response_type: "code",
+      response_mode: "jwt",
     });
 
     // Redirect the user to the authorization URL
@@ -46,7 +50,7 @@ app.get('/button/oauth', async (req, res) => {
 
 // Callback endpoint called after the user completes the authorization process
 app.get('/button/oauth/callback', async (req, res) => {
-  const { code } = req.query;
+  const decodedToken = await JOSEWrapper.verifyJWS({ jws: req.query.response, issuerURL: req.cookies.iss });
 
   // Create the credentials for Basic Authorization header
   const credentials = `${clientId}:${clientSecret}`;
@@ -55,7 +59,7 @@ app.get('/button/oauth/callback', async (req, res) => {
   // Prepare the payload, headers, and data for the token exchange request
   const payload = {
     grant_type: 'authorization_code',
-    code,
+    code: decodedToken.code,
     redirect_uri: redirectUri,
     code_verifier: verifier,
   };
@@ -68,7 +72,7 @@ app.get('/button/oauth/callback', async (req, res) => {
   const data = querystring.stringify(payload);
 
   // Send the token exchange request using Axios
-  axios.post('https://auth.idpartner.com/oidc/token', data, { headers }).then(response => {
+  axios.post(`${req.cookies.iss}/token`, data, { headers }).then(response => {
     const tokenData = response.data;
     console.log('Token response:', tokenData);
     return res.status(200).json(tokenData);
