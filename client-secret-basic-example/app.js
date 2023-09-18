@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.get('/button/oauth', async (req, res) => {
   const { iss, idp_id: idpId } = req.query;
   if (iss) {
-    res.cookie('iss', iss, { maxAge: 900000, httpOnly: true });  // maxAge set to 15 mins here as an example
+    res.cookie('iss', iss, { maxAge: 900000, httpOnly: true });
     // Build query parameters for the authorization request
     const queryParams = querystring.stringify({
       redirect_uri: redirectUri,
@@ -37,7 +37,6 @@ app.get('/button/oauth', async (req, res) => {
       identity_provider_id: idpId,
       prompt: 'consent',
       response_type: "code",
-      // If FAPI is enabled, this is necessary to prevent InvalidRequest exception
       response_mode: "jwt",
     });
 
@@ -51,17 +50,7 @@ app.get('/button/oauth', async (req, res) => {
 
 // Callback endpoint called after the user completes the authorization process
 app.get('/button/oauth/callback', async (req, res) => {
-  let code
-  // We need to used the ID provider's issuer URL
-  const issFromCookie = req.cookies.iss;
-  if (req.query.response) {
-    // If FAPI is enabled, the response is a JWS and we need to verify it is emited by the correct issuer
-    const decodedToken = await JOSEWrapper.verifyJWS({ jws: req.query.response, issuerURL: issFromCookie });
-    code = decodedToken.code;
-  } else {
-    // If FAPI is not enabled, the query parameter is 'code'
-    code = req.query.code;
-  }
+  const decodedToken = await JOSEWrapper.verifyJWS({ jws: req.query.response, issuerURL: req.cookies.iss });
 
   // Create the credentials for Basic Authorization header
   const credentials = `${clientId}:${clientSecret}`;
@@ -70,7 +59,7 @@ app.get('/button/oauth/callback', async (req, res) => {
   // Prepare the payload, headers, and data for the token exchange request
   const payload = {
     grant_type: 'authorization_code',
-    code,
+    code: decodedToken.code,
     redirect_uri: redirectUri,
     code_verifier: verifier,
   };
@@ -83,7 +72,7 @@ app.get('/button/oauth/callback', async (req, res) => {
   const data = querystring.stringify(payload);
 
   // Send the token exchange request using Axios
-  axios.post(`${issFromCookie}/token`, data, { headers }).then(response => {
+  axios.post(`${req.cookies.iss}/token`, data, { headers }).then(response => {
     const tokenData = response.data;
     console.log('Token response:', tokenData);
     return res.status(200).json(tokenData);

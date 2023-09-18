@@ -5,7 +5,6 @@ const crypto = require('crypto');
 const base64 = require('urlsafe-base64');
 const querystring = require('querystring');
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
 const JOSEWrapper = require('@idpartner/jose-wrapper');
 const cookieParser = require('cookie-parser');
 
@@ -53,14 +52,11 @@ app.get('/button/oauth', async (req, res) => {
 });
 
 app.get('/button/oauth/callback', async (req, res) => {
-  const issFromCookie = req.cookies.iss;
-  const { response } = req.query;
-  const decodedToken = await JOSEWrapper.verifyJWS({ jws: response, issuerURL: issFromCookie });
-  const code = decodedToken.code;
+  const decodedToken = await JOSEWrapper.verifyJWS({ jws: req.query.response, issuerURL: req.cookies.iss });
 
   const payload = {
     grant_type: 'authorization_code',
-    code,
+    code: decodedToken.code,
     redirect_uri: redirectUri,
     code_verifier: verifier,
     client_id: clientId,
