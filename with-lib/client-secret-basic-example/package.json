@@ -1,0 +1,19 @@
+{
+  "name": "@idpartner/node-example",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./app.js"
+  },
+  "dependencies": {
+    "@idpartner/node-oidc-client": "^3.0.6",
+    "cookie-session": "^2.0.0",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
