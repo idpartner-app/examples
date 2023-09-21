@@ -3,18 +3,20 @@ const IDPartner = require('@idpartner/node-oidc-client');
 const fs = require('fs');
 
 const router = express.Router();
+const config = require('../config.json');
 
 const idPartner = new IDPartner({
-  client_id: 'CHANGE_ME_CLIENT_ID',
-  tls_client_cert: fs.readFileSync('./certs/CHANGE_ME_CLIENT_ID.pem'),
-  tls_client_key: fs.readFileSync('./certs/CHANGE_ME_CLIENT_ID.key'),
+  client_id: config.client_id,
   token_endpoint_auth_method: 'tls_client_auth',
-  callback: 'http://localhost:3001/button/oauth/callback',
+  callback: config.redirect_uri,
+  // Load certificate and key for mutual TLS
+  tls_client_cert: fs.readFileSync(`./certs/${config.client_id}.pem`),
+  tls_client_key: fs.readFileSync(`./certs/${config.client_id}.key`),
 });
 
 router.get('/', async (_req, res, next) => {
   try {
-    return res.render('index', { title: 'RP Example' });
+    return res.render('index', { title: 'RP Mutual TLS Example using node-oidc-client', config });
   } catch (error) {
     return next(error);
   }

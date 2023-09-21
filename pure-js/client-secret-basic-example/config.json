@@ -1,0 +1,7 @@
+{
+  "client_id": "CHANGE_ME_CLIENT_ID",
+  "client_secret": "CHANGE_ME_CLIENT_SECRET",
+  "redirect_uri": "http://localhost:3001/button/oauth/callback",
+  "cookie_secret": "CHANGE_ME_COOKIE_SECRET",
+  "port": 3001
+}

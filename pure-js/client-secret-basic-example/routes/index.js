@@ -5,10 +5,8 @@ const querystring = require('querystring');
 const axios = require('axios');
 const JOSEWrapper = require('@idpartner/jose-wrapper');
 const { v4: uuidv4 } = require('uuid');
+const config = require('../config.json');
 
-const clientId = 'CHANGE_ME_CLIENT_ID';
-const clientSecret = 'CHANGE_ME_CLIENT_SECRET';
-const redirectUri = 'http://localhost:3001/button/oauth/callback';
 const scope = 'openid offline_access email profile birthdate address';
 
 // Generate random values for state, nonce, and verifier
@@ -21,7 +19,7 @@ const router = express.Router();
 
 router.get('/', async (_req, res, next) => {
   try {
-    return res.render('index', { title: 'RP Example' });
+    return res.render('index', { title: 'RP Client Secret Example', config });
   } catch (error) {
     return next(error);
   }
@@ -34,13 +32,13 @@ router.get('/button/oauth', async (req, res, next) => {
       req.session.issuer = iss;
       // Build query parameters for the authorization request
       const queryParams = querystring.stringify({
-        redirect_uri: redirectUri,
+        redirect_uri: config.redirect_uri,
         code_challenge_method: "S256",
         code_challenge: challenge,
         state,
         nonce,
         scope,
-        client_id: clientId,
+        client_id: config.client_id,
         identity_provider_id: idpId,
         prompt: 'consent',
         response_type: "code",
@@ -52,7 +50,7 @@ router.get('/button/oauth', async (req, res, next) => {
       return res.redirect(`${iss}/auth?${queryParams}`);
     } else {
       // bank selection
-      return res.redirect(`https://auth-api.idpartner.com/oidc-proxy/auth/select-accounts?client_id=${clientId}&visitor_id=${visitorId}&scope=${scope}`)
+      return res.redirect(`https://auth-api.idpartner.com/oidc-proxy/auth/select-accounts?client_id=${config.client_id}&visitor_id=${visitorId}&scope=${scope}`)
     }
   } catch (error) {
     return next(error);
@@ -73,14 +71,14 @@ router.get('/button/oauth/callback', async (req, res, next) => {
     const decodedToken = await JOSEWrapper.verifyJWS({ jws: req.query.response, issuerURL: req.session.issuer });
 
     // Create the credentials for Basic Authorization header
-    const credentials = `${clientId}:${clientSecret}`;
+    const credentials = `${config.client_id}:${config.client_secret}`;
     const encodedCredentials = Buffer.from(credentials).toString('base64');
 
     // Prepare the payload, headers, and data for the token exchange request
     const payload = {
       grant_type: 'authorization_code',
       code: decodedToken.code,
-      redirect_uri: redirectUri,
+      redirect_uri: config.redirect_uri,
       code_verifier: verifier,
     };
 

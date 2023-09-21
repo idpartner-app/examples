@@ -2,16 +2,17 @@ const express = require('express');
 const IDPartner = require('@idpartner/node-oidc-client');
 
 const router = express.Router();
+const config = require('../config.json');
 
 const idPartner = new IDPartner({
-  client_id: 'CHANGE_ME_CLIENT_ID',
-  client_secret: 'CHANGE_ME_CLIENT_SECRET',
-  callback: 'http://localhost:3001/button/oauth/callback',
+  client_id: config.client_id,
+  client_secret: config.client_secret,
+  callback: config.redirect_uri,
 });
 
 router.get('/', async (_req, res, next) => {
   try {
-    return res.render('index', { title: 'RP Example' });
+    return res.render('index', { title: 'RP Client Secret Example using node-oidc-client', config });
   } catch (error) {
     return next(error);
   }

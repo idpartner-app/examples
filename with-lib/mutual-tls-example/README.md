@@ -13,12 +13,13 @@
 1. Download your certificate and place it in the [certs](./certs) folder
 1. Update the paths to the certificate and the key files placed in the [certs](./certs) folder
 1. Grab the "Client ID" to update the following parts in your code:
-   1. [Update CHANGE_ME_CLIENT_ID in custom html](./views/index.ejs)
-   1. [Update CHANGE_ME_CLIENT_ID in confidential client](./routes/index.js)
+   1. [Update CHANGE_ME_CLIENT_ID in the configuration file](./config.json)
+   1. Update the name of your certificate file with your client ID: `CLIENT_ID.pem`
+   1. Update the name of your key file with your client ID: `CLIENT_ID.key`
 
    Aditionally you optionally can configure the next steps:
-   1. [Update the "callback" in confidential client](./routes/index.js)
-   1. [Update CHANGE_ME_COOKIE_SECRET for the cookie session](./app.js).
+   1. [Update the "redirect_uri" in the configuration file](./config.json)
+   1. [Update CHANGE_ME_COOKIE_SECRET in the configuration file](./config.json)
 
 ## Running the project
 

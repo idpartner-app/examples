@@ -1,2 +1,2 @@
 certs/*
-!certs/*.example
+!certs/CLIENT_ID.*

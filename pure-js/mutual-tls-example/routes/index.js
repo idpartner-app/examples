@@ -7,9 +7,8 @@ const querystring = require('querystring');
 const axios = require('axios');
 const JOSEWrapper = require('@idpartner/jose-wrapper');
 const { v4: uuidv4 } = require('uuid');
+const config = require('../config.json');
 
-const clientId = 'CHANGE_ME_CLIENT_ID';
-const redirectUri = 'http://localhost:3001/button/oauth/callback';
 const scope = 'openid offline_access email profile birthdate address';
 
 const state = crypto.randomBytes(16).toString('hex');
@@ -17,15 +16,15 @@ const nonce = crypto.randomBytes(16).toString('hex');
 const verifier = base64.encode(crypto.randomBytes(32));
 const challenge = base64.encode(crypto.createHash('sha256').update(verifier).digest());
 
-// Load client certificates
-const clientCert = fs.readFileSync('./certs/CHANGE_ME_CLIENT_ID.pem');
-const clientKey = fs.readFileSync('./certs/CHANGE_ME_CLIENT_ID.key');
+// Load certificate and key for mutual TLS
+const clientCert = fs.readFileSync(`./certs/${config.client_id}.pem`);
+const clientKey = fs.readFileSync(`./certs/${config.client_id}.key`);
 
 const router = express.Router();
 
 router.get('/', async (_req, res, next) => {
   try {
-    return res.render('index', { title: 'RP Example' });
+    return res.render('index', { title: 'RP Mutual TLS Example using node-oidc-client', config });
   } catch (error) {
     return next(error);
   }
@@ -38,13 +37,13 @@ router.get('/button/oauth', async (req, res, next) => {
       req.session.issuer = iss;
       // Build query parameters for the authorization request
       const queryParams = querystring.stringify({
-        redirect_uri: redirectUri,
+        redirect_uri: config.redirect_uri,
         code_challenge_method: "S256",
         code_challenge: challenge,
         state,
         nonce,
         scope,
-        client_id: clientId,
+        client_id: config.client_id,
         identity_provider_id: idpId,
         prompt: 'consent',
         response_type: "code",
@@ -56,7 +55,7 @@ router.get('/button/oauth', async (req, res, next) => {
       return res.redirect(`${iss}/auth?${queryParams}`);
     } else {
       // bank selection
-      return res.redirect(`https://auth-api.idpartner.com/oidc-proxy/auth/select-accounts?client_id=${clientId}&visitor_id=${visitorId}&scope=${scope}`)
+      return res.redirect(`https://auth-api.idpartner.com/oidc-proxy/auth/select-accounts?client_id=${config.client_id}&visitor_id=${visitorId}&scope=${scope}`)
     }
   } catch (error) {
     return next(error);
@@ -78,9 +77,9 @@ router.get('/button/oauth/callback', async (req, res, next) => {
     const payload = {
       grant_type: 'authorization_code',
       code: decodedToken.code,
-      redirect_uri: redirectUri,
+      redirect_uri: config.redirect_uri,
       code_verifier: verifier,
-      client_id: clientId,
+      client_id: config.client_id,
     };
 
     const httpsAgent = new https.Agent({
