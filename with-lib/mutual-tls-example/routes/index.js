@@ -1,11 +1,14 @@
 const express = require('express');
 const IDPartner = require('@idpartner/node-oidc-client');
+const fs = require('fs');
 
 const router = express.Router();
 
 const idPartner = new IDPartner({
   client_id: 'CHANGE_ME_CLIENT_ID',
-  client_secret: 'CHANGE_ME_CLIENT_SECRET',
+  tls_client_cert: fs.readFileSync('./certs/CHANGE_ME_CLIENT_ID.pem'),
+  tls_client_key: fs.readFileSync('./certs/CHANGE_ME_CLIENT_ID.key'),
+  token_endpoint_auth_method: 'tls_client_auth',
   callback: 'http://localhost:3001/button/oauth/callback',
 });
 
