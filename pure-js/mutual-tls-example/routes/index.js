@@ -1,4 +1,6 @@
 const express = require('express');
+const https = require('https');
+const fs = require('fs');
 const crypto = require('crypto');
 const base64 = require('urlsafe-base64');
 const querystring = require('querystring');
@@ -6,15 +8,17 @@ const axios = require('axios');
 const JOSEWrapper = require('@idpartner/jose-wrapper');
 
 const clientId = 'CHANGE_ME_CLIENT_ID';
-const clientSecret = 'CHANGE_ME_CLIENT_SECRET';
 const redirectUri = 'http://localhost:3001/button/oauth/callback';
 const scope = 'openid offline_access email profile birthdate address';
 
-// Generate random values for state, nonce, and verifier
 const state = crypto.randomBytes(16).toString('hex');
 const nonce = crypto.randomBytes(16).toString('hex');
 const verifier = base64.encode(crypto.randomBytes(32));
 const challenge = base64.encode(crypto.createHash('sha256').update(verifier).digest());
+
+// Load client certificates
+const clientCert = fs.readFileSync('./certs/CHANGE_ME_CLIENT_ID.pem');
+const clientKey = fs.readFileSync('./certs/CHANGE_ME_CLIENT_ID.key');
 
 const router = express.Router();
 
@@ -57,7 +61,6 @@ router.get('/button/oauth', async (req, res, next) => {
   }
 });
 
-
 router.get('/button/oauth/callback', async (req, res, next) => {
   try {
     // Fetch the OpenID Connect Discovery document from the provided issuer URL
@@ -65,41 +68,38 @@ router.get('/button/oauth/callback', async (req, res, next) => {
     const discoveryData = discoveryResponse.data;
 
     // Obtain the endpoints from the discovery data
-    const tokenEndpoint = discoveryData.token_endpoint;
-    const userinfoEndpoint = discoveryData.userinfo_endpoint;
+    const mTlsUserinfoEndpoint = discoveryData.mtls_endpoint_aliases.userinfo_endpoint;
+    const mTlsTokenEndpoint = discoveryData.mtls_endpoint_aliases.token_endpoint;
 
     const decodedToken = await JOSEWrapper.verifyJWS({ jws: req.query.response, issuerURL: req.session.issuer });
 
-    // Create the credentials for Basic Authorization header
-    const credentials = `${clientId}:${clientSecret}`;
-    const encodedCredentials = Buffer.from(credentials).toString('base64');
-
-    // Prepare the payload, headers, and data for the token exchange request
     const payload = {
       grant_type: 'authorization_code',
       code: decodedToken.code,
       redirect_uri: redirectUri,
       code_verifier: verifier,
+      client_id: clientId,
     };
 
-    // Send the token exchange request using Axios
-    const tokenResponse = await axios.post(tokenEndpoint, querystring.stringify(payload), {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${encodedCredentials}`,
-      }
-    })
+    const httpsAgent = new https.Agent({
+      cert: clientCert,
+      key: clientKey,
+      rejectUnauthorized: true,
+    });
+
+    const tokenResponse = await axios.post(mTlsTokenEndpoint, querystring.stringify(payload), { httpsAgent });
     const tokenData = tokenResponse.data;
 
     // Now, use the access_token to get user info from the dynamically obtained userinfo endpoint
-    const userInfoResponse = await axios.get(userinfoEndpoint, {
+    const userInfoResponse = await axios.get(mTlsUserinfoEndpoint, {
+      httpsAgent,
       headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`
-      }
+        Authorization: `Bearer ${tokenData.access_token}`,
+      },
     });
     const userInfo = userInfoResponse.data;
-
     return res.json(userInfo);
+
   } catch (error) {
     return next(error);
   }
