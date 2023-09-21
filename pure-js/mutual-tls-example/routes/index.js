@@ -6,6 +6,7 @@ const base64 = require('urlsafe-base64');
 const querystring = require('querystring');
 const axios = require('axios');
 const JOSEWrapper = require('@idpartner/jose-wrapper');
+const { v4: uuidv4 } = require('uuid');
 
 const clientId = 'CHANGE_ME_CLIENT_ID';
 const redirectUri = 'http://localhost:3001/button/oauth/callback';
@@ -48,6 +49,7 @@ router.get('/button/oauth', async (req, res, next) => {
         prompt: 'consent',
         response_type: "code",
         response_mode: "jwt",
+        'x-fapi-interaction-id': uuidv4(),
       });
 
       // Redirect the user to the authorization URL
