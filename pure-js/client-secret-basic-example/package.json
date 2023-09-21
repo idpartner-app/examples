@@ -1,0 +1,23 @@
+{
+  "name": "@idpartner/node-example",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./app.js"
+  },
+  "dependencies": {
+    "@idpartner/jose-wrapper": "^1.2.5",
+    "axios": "^1.4.0",
+    "cookie-session": "^2.0.0",
+    "crypto": "^1.0.1",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "querystring": "^0.2.1",
+    "urlsafe-base64": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
