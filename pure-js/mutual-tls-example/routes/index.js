@@ -37,18 +37,18 @@ router.get('/button/oauth', async (req, res, next) => {
       req.session.issuer = iss;
       // Build query parameters for the authorization request
       const queryParams = querystring.stringify({
-        redirect_uri: config.redirect_uri,
-        code_challenge_method: "S256",
-        code_challenge: challenge,
-        state,
-        nonce,
-        scope,
         client_id: config.client_id,
+        code_challenge: challenge,
+        code_challenge_method: 'S256',
         identity_provider_id: idpId,
+        nonce: nonce,
         prompt: 'consent',
-        response_type: "code",
-        response_mode: "jwt",
-        'x-fapi-interaction-id': uuidv4(),
+        redirect_uri: config.redirect_uri,
+        response_mode: 'jwt',
+        response_type: 'code',
+        scope: scope,
+        state: state,
+        'x-fapi-interaction-id': uuidv4()
       });
 
       // Redirect the user to the authorization URL
@@ -75,11 +75,11 @@ router.get('/button/oauth/callback', async (req, res, next) => {
     const decodedToken = await JOSEWrapper.verifyJWS({ jws: req.query.response, issuerURL: req.session.issuer });
 
     const payload = {
-      grant_type: 'authorization_code',
-      code: decodedToken.code,
-      redirect_uri: config.redirect_uri,
-      code_verifier: verifier,
       client_id: config.client_id,
+      code: decodedToken.code,
+      code_verifier: verifier,
+      grant_type: 'authorization_code',
+      redirect_uri: config.redirect_uri,
     };
 
     const httpsAgent = new https.Agent({

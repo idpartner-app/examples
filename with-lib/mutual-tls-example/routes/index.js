@@ -6,12 +6,11 @@ const router = express.Router();
 const config = require('../config.json');
 
 const idPartner = new IDPartner({
-  client_id: config.client_id,
-  token_endpoint_auth_method: 'tls_client_auth',
   callback: config.redirect_uri,
-  // Load certificate and key for mutual TLS
+  client_id: config.client_id,
   tls_client_cert: fs.readFileSync(`./certs/${config.client_id}.pem`),
   tls_client_key: fs.readFileSync(`./certs/${config.client_id}.key`),
+  token_endpoint_auth_method: 'tls_client_auth',
 });
 
 router.get('/', async (_req, res, next) => {

@@ -5,9 +5,9 @@ const router = express.Router();
 const config = require('../config.json');
 
 const idPartner = new IDPartner({
+  callback: config.redirect_uri,
   client_id: config.client_id,
   client_secret: config.client_secret,
-  callback: config.redirect_uri,
 });
 
 router.get('/', async (_req, res, next) => {
