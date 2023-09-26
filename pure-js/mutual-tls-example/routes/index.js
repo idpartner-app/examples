@@ -21,6 +21,10 @@ const clientCert = fs.readFileSync(`./certs/${config.client_id}.pem`);
 const clientKey = fs.readFileSync(`./certs/${config.client_id}.key`);
 
 const router = express.Router();
+const httpsAgent = new https.Agent({
+  cert: clientCert,
+  key: clientKey,
+});
 
 router.get('/', async (_req, res, next) => {
   try {
@@ -35,8 +39,15 @@ router.get('/button/oauth', async (req, res, next) => {
     const { iss, idp_id: idpId, visitor_id: visitorId } = req.query;
     if (iss) {
       req.session.issuer = iss;
+      // Fetch the OpenID Connect Discovery document from the provided issuer URL
+      const discoveryResponse = await axios.get(`${req.session.issuer}/.well-known/openid-configuration`);
+      const discoveryData = discoveryResponse.data;
+
+      // Obtain the endpoints from the discovery data
+      const mtlsPAREndpoint = discoveryData.mtls_endpoint_aliases.pushed_authorization_request_endpoint;
+
       // Build query parameters for the authorization request
-      const queryParams = querystring.stringify({
+      const payload = {
         client_id: config.client_id,
         code_challenge: challenge,
         code_challenge_method: 'S256',
@@ -49,7 +60,14 @@ router.get('/button/oauth', async (req, res, next) => {
         scope: scope,
         state: state,
         'x-fapi-interaction-id': uuidv4()
-      });
+      };
+
+      // Make a POST request to the PAR endpoint
+      const parResponse = await axios.post(mtlsPAREndpoint, querystring.stringify(payload), { httpsAgent });
+
+      // Assuming the PAR response contains a request URI
+      const { request_uri } = parResponse.data;
+      const queryParams = new URLSearchParams({ request_uri });
 
       // Redirect the user to the authorization URL
       return res.redirect(`${iss}/auth?${queryParams}`);
@@ -81,12 +99,6 @@ router.get('/button/oauth/callback', async (req, res, next) => {
       grant_type: 'authorization_code',
       redirect_uri: config.redirect_uri,
     };
-
-    const httpsAgent = new https.Agent({
-      cert: clientCert,
-      key: clientKey,
-      rejectUnauthorized: true,
-    });
 
     const tokenResponse = await axios.post(mTlsTokenEndpoint, querystring.stringify(payload), { httpsAgent });
     const tokenData = tokenResponse.data;

@@ -1,4 +1,4 @@
-# POC for OIDC mTLS flow using pure JS
+# POC for OIDC mTLS flow using node-oidc-client lib
 
 ## Prerequisites
 
