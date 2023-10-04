@@ -16,12 +16,21 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@idpartner/http-client@^2.0.5":
+"@idpartner/http-client@^2.0.1", "@idpartner/http-client@^2.0.5":
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/@idpartner/http-client/-/http-client-2.0.6.tgz#0a2afc2cb04f9ee18ef93dd861c9d27da7ee679a"
   integrity sha512-LKpRD1jK/is1Yr52vFw01ApBaKCs0VscIodCGnvYftXZbi9J4zvGu0HJ9OdLNIjD0THDRlrjFClMVK1YpEeVEg==
   dependencies:
     axios "^1.3.6"
+
+"@idpartner/jose-wrapper@^1.2.5":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@idpartner/jose-wrapper/-/jose-wrapper-1.2.5.tgz#e4a1f6c0be0be72c1f3b3c19edbd05c1db3f127f"
+  integrity sha512-Q0zmc0CzL9ET0cS7OJ8F+3jMjVsAiAvxmrTiZYA0gmBwqRKU7LiVOQ/2dnKhsiAy1/J8iyQimFAMh7cG6Xi8iw==
+  dependencies:
+    "@idpartner/http-client" "^2.0.1"
+    ms "^2.1.3"
+    node-jose "^2.2.0"
 
 "@idpartner/logger@^1.1.0":
   version "1.1.0"
@@ -30,14 +39,14 @@
   dependencies:
     winston "^3.8.2"
 
-"@idpartner/node-oidc-client@^3.0.6":
-  version "3.0.6"
-  resolved "https://registry.yarnpkg.com/@idpartner/node-oidc-client/-/node-oidc-client-3.0.6.tgz#d5b929b0635a524d1fc764070d3db122756b59c3"
-  integrity sha512-UXp3dXQuM1HAH/iHlhXmZvLHh/ZoRXycCF3KzM+MnF8ffmv6SUBWGPCxMyPT1M+978GD9CGcPbBnQomt7GNaLw==
+"@idpartner/node-oidc-client@^3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@idpartner/node-oidc-client/-/node-oidc-client-3.1.1.tgz#ef68fbaa1cb011d1ff43248cd2835937c6da7436"
+  integrity sha512-kYTfwszmFUHteWpwVM7xKkuS7gDH1FdZCqjZGBsu90NU+4G9Arq3YCNY3i2mkJZO5XFpHyeHCl+kKU+ME/+NCQ==
   dependencies:
     "@idpartner/http-client" "^2.0.5"
+    "@idpartner/jose-wrapper" "^1.2.5"
     "@idpartner/logger" "^1.1.0"
-    node-jose "^2.2.0"
     openid-client "^5.4.2"
     uuid "^9.0.0"
 
@@ -621,7 +630,7 @@ ms@2.0.0:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
   integrity sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==
 
-ms@^2.1.1:
+ms@^2.1.1, ms@^2.1.3:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
