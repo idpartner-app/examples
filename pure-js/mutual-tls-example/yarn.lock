@@ -16,7 +16,7 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@idpartner/http-client@^2.0.5":
+"@idpartner/http-client@^2.0.8":
   version "2.0.8"
   resolved "https://registry.yarnpkg.com/@idpartner/http-client/-/http-client-2.0.8.tgz#8d9139038c14b2d48748ee53faf53030758f6405"
   integrity sha512-5DQmmokDg6yjo9bz5/PGZiW358lcal+hraYsB5GyBMLuuquhAZRnFA9EcGjw5go0qj6UjoNpFbNpTbunvWhNmw==
@@ -24,12 +24,12 @@
     "@idpartner/tracing" "^0.0.1"
     axios "^1.3.6"
 
-"@idpartner/jose-wrapper@^1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@idpartner/jose-wrapper/-/jose-wrapper-1.2.6.tgz#12b4dcea718e64b3cc29dc479f26525bd6ffd088"
-  integrity sha512-7zMpZ84UxQDPG9y8QlztNTof8FIiu6TYzgjb9T2xTFlohAlvoRrXbEF/vrNS8foRJPEdK9BhygI/P42I5AqBCg==
+"@idpartner/jose-wrapper@^1.2.7":
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/@idpartner/jose-wrapper/-/jose-wrapper-1.2.7.tgz#597842fd893bc78eb21287d90d0760399ada1541"
+  integrity sha512-JL/MgcayhZZ8BYCeGOTzWmAOioGz/vVmUkSuMF7ZLXuzdH5JYyzvQJh27yUUQsmlPodK2AE2+c4wIUX4QIXv6w==
   dependencies:
-    "@idpartner/http-client" "^2.0.5"
+    "@idpartner/http-client" "^2.0.8"
     "@idpartner/logger" "^1.1.1"
     "@idpartner/tracing" "^0.0.1"
     ms "^2.1.3"
