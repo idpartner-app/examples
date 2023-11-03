@@ -23,7 +23,7 @@ router.get('/', async (_req, res, next) => {
 
 router.get('/button/oauth', async (req, res, next) => {
   try {
-    const scope = ['openid', 'offline_access', 'email', 'profile', 'birthdate address'];
+    const scope = ['openid', 'offline_access', 'email', 'profile', 'birthdate', 'address'];
     const prompt = 'consent';
     req.session.idp_proofs = idPartner.generateProofs();
     req.session.issuer = req.query.iss;

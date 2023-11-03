@@ -1,6 +1,7 @@
 {
   "client_id": "CHANGE_ME_CLIENT_ID",
   "redirect_uri": "http://localhost:3001/button/oauth/callback",
+  "scope": "openid offline_access email profile birthdate address",
   "cookie_secret": "CHANGE_ME_COOKIE_SECRET",
   "port": 3001
 }
