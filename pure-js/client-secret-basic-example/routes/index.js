@@ -7,8 +7,6 @@ const JOSEWrapper = require('@idpartner/jose-wrapper');
 const { v4: uuidv4 } = require('uuid');
 const config = require('../config.json');
 
-const scope = 'openid offline_access email profile birthdate address';
-
 // Generate random values for state, nonce, and verifier
 const state = crypto.randomBytes(16).toString('hex');
 const nonce = crypto.randomBytes(16).toString('hex');
@@ -41,7 +39,7 @@ router.get('/button/oauth', async (req, res, next) => {
         redirect_uri: config.redirect_uri,
         response_mode: 'jwt',
         response_type: 'code',
-        scope: scope,
+        scope: config.scope,
         state: state,
         'x-fapi-interaction-id': uuidv4()
       });
