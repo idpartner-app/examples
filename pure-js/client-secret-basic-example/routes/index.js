@@ -48,7 +48,7 @@ router.get('/button/oauth', async (req, res, next) => {
       return res.redirect(`${iss}/auth?${queryParams}`);
     } else {
       // bank selection
-      return res.redirect(`https://auth-api.idpartner.com/oidc-proxy/auth/select-accounts?client_id=${config.client_id}&visitor_id=${visitorId}&scope=${scope}`)
+      return res.redirect(`https://auth-api.idpartner.com/oidc-proxy/auth/select-accounts?client_id=${config.client_id}&visitor_id=${visitorId}&scope=${config.scope}`)
     }
   } catch (error) {
     return next(error);
