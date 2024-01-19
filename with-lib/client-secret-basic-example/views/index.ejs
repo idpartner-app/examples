@@ -1,11 +1,67 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <script src="https://install.idpartner.com/script.js"></script>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <id-partner id="<%= config.client_id %>">
-  </body>
+<head>
+  <script src="https://install.idpartner.com/script.js"></script>
+  <title>Demo Site for IDPartner Bank Authentication</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <style>
+    body {
+      font-family: Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    .header {
+      background-color: #1d43f5;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px 5px 0 0;
+      margin: -20px -20px 20px -20px;
+    }
+    .instructions {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+    ol {
+      line-height: 1.5em;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>Welcome to the IDPartner Demo</h1>
+    </div>
+
+    <div class="instructions">
+      <strong>How to use IDPartner:</strong>
+      <ol>
+        <li>Click the button to start the process.</li>
+        <li>Select your bank from the list.</li>
+        <li>Login to your bank account to authenticate.</li>
+      </ol>
+    </div>
+
+    <id-partner id="<%= config.client_id %>"></id-partner>
+  </div>
+</body>
 </html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Success Page</title>
+  <style>
+    body {
+      font-family: Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+    .json-display {
+      background-color: #1E1E1E;
+      color: #9CDCFE;
+      text-align: left;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      margin-top: 20px;
+      font-size: 0.9em;
+    }
+    .subtext {
+      font-size: 14px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .header {
+      background-color: #1d43f5;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px 5px 0 0;
+      margin: -20px -20px 20px -20px;
+    }
+    h1 {
+        font-size: 22px;
+    }
+    h2 {
+        font-size: 18px;
+    }
+    code {
+        font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>Authentication Success</h1>
+    </div>
+    <h2>Welcome, <%= data.given_name %> <%= data.family_name %>!</h2>
+    <p>Your email is: <%= data.email %></p>
+
+    <div class="subtext">
+      The following data came from the bank. You can edit <code>/views/success.ejs</code> to display different information from this JSON.
+    </div>
+
+    <div class="json-display">
+      <pre><%= JSON.stringify(data, null, 2) %></pre>
+    </div>
+  </div>
+</body>
+</html>
