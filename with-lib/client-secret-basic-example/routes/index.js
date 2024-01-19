@@ -38,7 +38,7 @@ router.get('/button/oauth/callback', async (req, res, next) => {
     const token = await idPartner.token(req.url, req.session.issuer, req.session.idp_proofs);
     const claims = await idPartner.userInfo(req.session.issuer, token);
 
-    return res.json(claims);
+     res.render('success', { data: claims });
   } catch (error) {
     return next(error);
   }
